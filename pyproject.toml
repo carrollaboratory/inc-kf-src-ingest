@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/src_ingest/_version.py"
+
+[project]
+name = "src_ingest"
+authors = [
+    {name = "Brenda Gutman", email="brenda.gutman@vumc.org"}
+]
+description = "Data Expectations Validation Assistant"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = ["s3fs", "psycopg2-binary"]
+
+dynamic = ["version"]
+
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
+
+[tool.setuptools.package-data]
+src_ingest = []
+
+[project.scripts]
+copy_data = "src_ingest.models.actions.copy_data:main"
+copy_data_no_dd = "src_ingest.models.actions.copy_data_no_dd:main"
