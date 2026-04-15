@@ -28,4 +28,4 @@ src_ingest = []
 
 [project.scripts]
 copy_data = "src_ingest.models.actions.copy_data:main"
-copy_data_no_dd = "src_ingest.models.actions.copy_data_no_dd:main"
+copy_data_wo_format = "src_ingest.models.actions.copy_data_wo_format:main"

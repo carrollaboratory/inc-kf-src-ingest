@@ -43,7 +43,7 @@ def prepare_and_run_ingest_no_dd(
     }
 
     table_name = Path(datafile_path).stem
-    
+
     # Get header from CSV to create table schema
     header = get_csv_header(datafile_path, **aws_auth)
 
@@ -61,17 +61,17 @@ def prepare_and_run_ingest_no_dd(
             db_port=db_port,
             local_port=local_port,
         )
-        
-        # Create Metadata Table
-        db_conn.execute_query(
-            gen_create_metadata_table_query(db_schema),
-            query_name="Create Metadata Table",
-        )
 
         # Create Schema
         db_conn.execute_query(
             gen_create_schema_query(db_schema),
             query_name="Create Schema",
+        )
+
+        # Create Metadata Table
+        db_conn.execute_query(
+            gen_create_metadata_table_query(db_schema),
+            query_name="Create Metadata Table",
         )
 
         # Create Table
@@ -97,13 +97,13 @@ def prepare_and_run_ingest_no_dd(
         with open_file(datafile_path, 'r', **aws_auth) as f:
             next(f)
             rows_ingested = db_conn.copy_from_file(f, f"{db_schema}.{table_name}")
-        
+
         # Row count validation
         csv_row_count = get_csv_row_count(datafile_path, **aws_auth)
         if rows_ingested != csv_row_count:
             raise ValueError(f"Row count mismatch: CSV file has {csv_row_count} rows, but {rows_ingested} rows were ingested.")
         print(f"✅ Row count validated: {rows_ingested} rows.")
-        
+
         was_successful = True
         details = f"Successfully ingested {rows_ingested} rows."
 
@@ -111,23 +111,25 @@ def prepare_and_run_ingest_no_dd(
         details = f"An error occurred during the ingestion process: {e}"
         print(details)
         was_successful = False
-    
+        raise
+
     finally:
         if db_conn:
             try:
-                # Log the transaction
-                db_conn.execute_query(
-                    gen_insert_metadata_query(
-                        schema=db_schema,
-                        source_file_path=datafile_path,
-                        target_schema=db_schema,
-                        target_table=table_name,
-                        rows_ingested=rows_ingested,
-                        was_successful=was_successful,
-                        details=details,
-                    ),
-                    query_name="Log Metadata",
-                )
+                if was_successful:
+                    # Log the transaction
+                    db_conn.execute_query(
+                        gen_insert_metadata_query(
+                            schema=db_schema,
+                            source_file_path=datafile_path,
+                            target_schema=db_schema,
+                            target_table=table_name,
+                            rows_ingested=rows_ingested,
+                            was_successful=was_successful,
+                            details=details,
+                        ),
+                        query_name="Log Metadata",
+                    )
             except Exception as e:
                 print(f"Failed to log metadata: {e}")
             finally:

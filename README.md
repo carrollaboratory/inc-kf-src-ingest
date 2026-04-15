@@ -6,7 +6,7 @@ A Python-based tool for ingesting CSV data into a PostgreSQL database.
 
 - Creates database schemas and tables if they do not already exist.
   - **Recommended:** Tables are created using argument defined data dictionaries. Uses the `copy_data` command.
-  - Tables are created by reading the data file header row. Use the `copy_data_no_dd` command.
+  - Tables are created by reading the data file header row. Use the `copy_data_wo_format` command.
 - _Fully refreshes data_. Truncates existing data, before copying new data into an existing table.
 - Performs column and row count checks to ensure data integrity between the source file and the database.
 - Records every ingestion attempt (success or failure) into a `ingestion_log` table within the target schema.
@@ -81,7 +81,7 @@ copy_data -dd {data_dictionary_path} -df {datafile_path} [options]
 - `--aws-access-key-id`, `--aws-secret-access-key`, `--aws-session-token`: (Optional) AWS credentials for S3 access.
 
 
-### 2. `copy_data_no_dd`
+### 2. `copy_data_wo_format`
 
 This command ingests a data file without a data dictionary. It infers the table schema from the header row of the CSV file, treating all columns as `TEXT`.
 
@@ -89,7 +89,7 @@ This command ingests a data file without a data dictionary. It infers the table 
 
 ```bash
 # Example assumes all other required arguments are set environment variables
-copy_data_no_dd -df "s3://my_bucket/data.csv"
+copy_data_wo_format -df "s3://my_bucket/data.csv"
 ```
 
 **Arguments:**

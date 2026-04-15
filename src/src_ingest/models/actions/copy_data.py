@@ -65,17 +65,16 @@ def prepare_and_run_src_data_ingest_copy(
             db_port=db_port,
             local_port=local_port,
         )
-        
-        # Create Metadata Table
-        db_conn.execute_query(
-            gen_create_metadata_table_query(db_schema),
-            query_name="Create Metadata Table",
-        )
-
         # Create Schema
         db_conn.execute_query(
             gen_create_schema_query(db_schema),
             query_name="Create Schema",
+        )
+
+        # Create Metadata Table
+        db_conn.execute_query(
+            gen_create_metadata_table_query(db_schema),
+            query_name="Create Metadata Table",
         )
 
         # Create Table
@@ -101,7 +100,7 @@ def prepare_and_run_src_data_ingest_copy(
         with open_file(datafile_path, 'r', **aws_auth) as f:
             next(f) 
             rows_ingested = db_conn.copy_from_file(f, f"{db_schema}.{table_name}")
-        
+
         # Row count validation
         csv_row_count = get_csv_row_count(datafile_path, **aws_auth)
         if rows_ingested != csv_row_count:

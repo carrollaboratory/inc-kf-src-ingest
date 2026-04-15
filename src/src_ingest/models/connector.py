@@ -22,14 +22,14 @@ class DatabaseConnection:
 
         except psycopg2.OperationalError as e:
             print(f"❌ Connection failed: {e}")
+            raise
 
     def execute_query(self, query, query_name="Query"):
         """
         Executes a SQL query on the database.
         """
         if not self.conn:
-            print("No database connection.")
-            return
+            raise RuntimeError("No database connection.")
         try:
             self.conn.notices.clear()
             with self.conn.cursor() as cursor:
@@ -61,8 +61,7 @@ class DatabaseConnection:
         Rolls back if there is an error during the copy operation.
         """
         if not self.conn:
-            print("No database connection.")
-            return 0
+            raise RuntimeError("No database connection.")
         try:
             with self.conn.cursor() as cursor:
                 cursor.copy_expert(f"COPY {table_name} FROM STDIN WITH (FORMAT CSV, HEADER FALSE)", file_obj)
@@ -82,8 +81,7 @@ class DatabaseConnection:
         Rolls back if there is an error during the operation.
         """
         if not self.conn:
-            print("No database connection.")
-            return 0
+            raise RuntimeError("No database connection.")
         try:
             with self.conn.cursor() as cursor:
                 query = """
