@@ -7,7 +7,7 @@ class DatabaseConnection:
             if local_port:
                 db_host = "localhost"
                 db_port = local_port
-            
+
             conn_string_parts = [
                 f"dbname='{db_name}'",
                 f"user='{db_user}'",
@@ -48,8 +48,8 @@ class DatabaseConnection:
 
         except psycopg2.Error as e:
             if "does not exist" in str(e) and "TRUNCATE" in query:
-                 print(f"🔔 {query_name}: Table does not exist, skipping.")
-                 self.conn.rollback()
+                print(f"🔔 {query_name}: Table does not exist, skipping.")
+                self.conn.rollback()
             else:
                 print(f"❌ {query_name}: Failed to execute. {e}")
                 self.conn.rollback()
@@ -89,7 +89,7 @@ class DatabaseConnection:
                 FROM information_schema.columns
                 WHERE table_schema = %s AND table_name = %s;
                 """
-                cursor.execute(query, (schema_name, table_name))
+                cursor.execute(query, (schema_name.lower(), table_name.lower()))
                 count = cursor.fetchone()[0]
                 return count
         except psycopg2.Error as e:
@@ -112,4 +112,3 @@ class DatabaseConnection:
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit method for the with statement. Closes the database connection."""
         self.close()
-

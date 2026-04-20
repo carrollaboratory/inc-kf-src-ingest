@@ -112,7 +112,7 @@ def prepare_and_run_src_data_ingest_copy(
 
     except Exception as e:
         details = f"An error occurred during the ingestion process: {e}"
-        print(details)
+        print(f"❌ {details}")
         was_successful = False
 
     finally:
