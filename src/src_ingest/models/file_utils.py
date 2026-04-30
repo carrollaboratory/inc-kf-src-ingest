@@ -1,8 +1,20 @@
+import chardet
 import csv
 from contextlib import contextmanager
-from io import TextIOWrapper
+import io
 import s3fs
 from botocore.exceptions import ClientError, NoCredentialsError
+
+def open_csv_utf8_in_memory(filepath):
+    """
+    Reads a CSV file, auto-detects encoding, decodes to UTF-8, and returns a StringIO object.
+    All downstream code can use this as a file-like object.
+    """
+    with open(filepath, "rb") as f:
+        raw = f.read()
+    enc = chardet.detect(raw)["encoding"] or "utf-8"
+    text = raw.decode(enc, errors="replace")
+    return io.StringIO(text)
 
 
 @contextmanager
@@ -34,7 +46,7 @@ def open_file(
             raise ValueError(f"S3 file not found at path: {file_path}")
     else:
         try:
-            f = open(file_path, mode=mode, encoding=encoding, newline="")
+            f = open_csv_utf8_in_memory(file_path)
         except FileNotFoundError:
             raise ValueError(f"Local file not found at path: {file_path}")
 

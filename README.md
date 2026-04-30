@@ -26,7 +26,7 @@ A Python-based tool for ingesting CSV data into a PostgreSQL database.
 Install the package from GitHub:
 
 ```bash
-pip install git@github.com:carrollaboratory/inc-kf-src-ingest.git
+pip install git+https://github.com/carrollaboratory/inc-kf-src-ingest.git
 ```
 
 Or install locally from source:
