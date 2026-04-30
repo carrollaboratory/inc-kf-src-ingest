@@ -9,7 +9,34 @@ def open_csv_utf8_in_memory(filepath):
     """
     Reads a CSV file, auto-detects encoding, decodes to UTF-8, and returns a StringIO object.
     All downstream code can use this as a file-like object.
+
+    Doctest:
+    >>> import tempfile
+    >>> import os
+    >>> import pandas as pd
+    >>> # UTF-8
+    >>> with tempfile.NamedTemporaryFile('w', delete=False, encoding='utf-8', suffix='.csv') as f:
+    ...     _ = f.write('a,b\\n1,2\\n')
+    ...     fname = f.name
+    >>> sio = open_csv_utf8_in_memory(fname)
+    >>> df = pd.read_csv(sio)
+    >>> list(df.columns)
+    ['a', 'b']
+    >>> os.remove(fname)
+
+    >>> with tempfile.NamedTemporaryFile('w', delete=False, encoding='latin1', suffix='.csv') as f:
+    ...     _ = f.write('c,d\\n3,4\\n')
+    ...     fname = f.name
+    >>> sio = open_csv_utf8_in_memory(fname)
+    >>> df = pd.read_csv(sio)
+    >>> list(df.columns)
+    ['c', 'd']
+    >>> os.remove(fname)
+
+    Reads a CSV file, auto-detects encoding, decodes to UTF-8, and returns a StringIO object.
+    All downstream code can use this as a file-like object.
     """
+
     with open(filepath, "rb") as f:
         raw = f.read()
     enc = chardet.detect(raw)["encoding"] or "utf-8"
